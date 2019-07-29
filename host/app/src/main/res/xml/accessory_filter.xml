@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--version needed?-->
+<resources>
+    <usb-accessory model="20EN0017US" manufacturer = "Lenovo" description = "HAL9000" version = "N1EET79W"/>
+</resources>
