@@ -2,8 +2,8 @@ import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
 /*
-convert object to protobuffer format and write to txt file. Then stick txt file (cbor?) into bytebuffer somehow, then transfer over to hikey\
-On hikey end, re-inflate txt to object and manipulate
+convert object to protobuffer format and write to txt file. Then stick txt file (cbor?) into bytebuffer somehow, then transfer over to CAT
+On CAT end, re-inflate txt to object and manipulate/display
  
 */
 public class ProtoConverter{
@@ -63,8 +63,8 @@ public class ProtoConverter{
                builtIn = true;
             else if(returnType.contains(".")){
                //if comes in class java.lang.String format
-               String type = returnType.substring(returnType.lastIndexOf(".")+1);
-               if(namingConventions.get(type) != null)
+               returnType = returnType.substring(returnType.lastIndexOf(".")+1);
+               if(namingConventions.get(returnType) != null)
                   builtIn = true;
             }
                //primitive
@@ -98,26 +98,40 @@ public class ProtoConverter{
                builtIn = true;
             else if(returnType.contains(".")){
                //if comes in class java.lang.String format
-               String type = returnType.substring(returnType.lastIndexOf(".")+1);
-               if(namingConventions.get(type) != null)
+               returnType = returnType.substring(returnType.lastIndexOf(".")+1);
+               if(namingConventions.get(returnType) != null)
                   builtIn = true;
             }
             if(builtIn){
                swap(methods,endIndex,i);
-               return processPrimitive(namingConventions,methods.get(endIndex).getReturnType().toString(),methods.get(endIndex).getName().substring(3,4).toLowerCase() + methods.get(endIndex).getName().substring(4),1);
+               return processPrimitive(namingConventions,returnType,methods.get(endIndex).getName().substring(3,4).toLowerCase() + methods.get(endIndex).getName().substring(4),1);
             }
          }
       } 
-      Object complexObj = methods.get(endIndex).invoke();
-      List<Method> complexMethods = Arrays.asList(complexObj.getClass().getMethods());
+       
+      s += "message " + methods.get(endIndex).getReturnType().toString() + "{ \n";
+      List<Method> complexMethods = Arrays.asList(methods.get(endIndex).getReturnType().getMethods());
       for(Method m : complexMethods){
-         if(namingConventions.get(m.getReturnType().toString()) != null)
-            s += processPrimitive(namingConventions,m.getReturnType().toString(),m.getName().substring(3,4).toLowerCase() + m.getName().substring(4),1);
+         if(m.getName().substring(0,3).equals("get") && m.getParameterTypes().length == 0 && namingConventions.get(m.getReturnType().toString()) != null){
+         String returnType = m.getReturnType().toString();
+         boolean builtIn = false;
+         if(namingConventions.get(returnType) != null)
+            builtIn = true;
+         else if(returnType.contains(".")){
+               //if comes in class java.lang.String format
+            returnType = returnType.substring(returnType.lastIndexOf(".")+1);
+            if(namingConventions.get(returnType) != null)
+               builtIn = true;
+         }
+         if(builtIn){
+            s += processPrimitive(namingConventions,returnType,methods.get(endIndex).getName().substring(3,4).toLowerCase() + methods.get(endIndex).getName().substring(4),1);
+         }      
          else{
-            s += "\nmessage " + (complexObj.getClass() + "").substring(6) + " {\n"; 
-            Object r = m.invoke(complexObj);
+            Object r = methods.get(endIndex).getReturnType();
+            s += "\nmessage " + (r.getClass() + "").substring(6) + " {\n"; 
             processComplex(namingConventions,complexMethods,r,s,complexMethods.indexOf(m));
          }
+      }
       }
       return s;
    }
