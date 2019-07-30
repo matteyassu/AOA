@@ -15,6 +15,8 @@ public class ProtoConverter{
       Map<String,String> h = new HashMap<>();
       h.put("Integer","int32");
       h.put("String","String");
+      h.put("int","int32");
+      
       File f = convert(h,"rocket.txt",r,2,"NASA",false,"",false,"");
       Scanner scan = new Scanner(f);
       String terminalOutput = "";
@@ -44,42 +46,85 @@ public class ProtoConverter{
       return f;
    }
    private static String generateAttributes(Map<String,String> namingConventions, Object o,String s)throws Exception{
-         int i = 0;
-         List<Method> methods = Arrays.asList(o.getClass().getMethods());
-         for(Method m : methods){
-            if(m.getName().substring(0,3).equals("get") && m.getParameterTypes().length == 0){
-               if(m.getName().equals("getClass"))
-                  continue;
-               String varName = " " + m.getName().substring(3,4).toLowerCase() + m.getName().substring(4) + " = " + i++ + ";\n";
-               Object r = m.invoke(o);
-               String protoKw = getProtoKeyword(namingConventions,r);
-               boolean builtIn = (protoKw == null) ? false:true;
-               if(builtIn)
-                  s += protoKw + varName;
-               else{
-               //check whether obj from last method is builtIn;if yes swap,else process
-               //below way better approach to get return type; no string manipulation
-                  Method last = methods.get(methods.size()-1);
-                  String lastRt = last.getReturnType().toString();
-                  if(namingConventions.get(lastRt) != null){
-                     methods.remove(m);
-                     methods.add(m);
-                  }
-                  else{
-                     s += "message " + (r.getClass() + "") + "{"; 
-                     s += generateAttributes(namingConventions,r,"") + "}\n"; 
-                  }
-               }
+      int i = 0;
+      List<Method> methods = Arrays.asList(o.getClass().getMethods());
+      for(Method m : methods){
+         String methodName = m.getName(); 
+         if(methodName.substring(0,3).equals("get") && m.getParameterTypes().length == 0){
+            if(m.getName().equals("getClass"))
+               continue;
+               //gather components of method signature
+               //ex:engineType
+            String returnVar = methodName.substring(3,4).toLowerCase() + methodName.substring(4);
+               //ex:String
+            String returnType = m.getReturnType().toString();
+            boolean builtIn = false;
+            if(namingConventions.get(returnType) != null)
+               builtIn = true;
+            else if(returnType.contains(".")){
+               //if comes in class java.lang.String format
+               String type = returnType.substring(returnType.lastIndexOf(".")+1);
+               if(namingConventions.get(type) != null)
+                  builtIn = true;
+            }
+               //primitive
+            if(builtIn)
+               s += processPrimitive(namingConventions,returnType,returnVar,i);
+               //complex
+            else{
+               int endIndex = methods.indexOf(m);
+               s += processComplex(namingConventions,methods,o,"",endIndex); 
             }
          }
-         return s;
+      }
+      return s;
    }
    
-   private static String getProtoKeyword(Map<String,String> namingConventions,Object r){
-      String classo = r.getClass() + "";
-      String dt = classo.substring(classo.lastIndexOf(".") + 1);
-      String nm = namingConventions.get(dt);
-      return nm;
-      //return namingConventions.get(r.getClass() + "").substring((r.getClass() + "").lastIndexOf(".") + 1);
+   private static String processPrimitive(Map<String,String> namingConventions,String returnType,String returnVar,int i){
+      return namingConventions.get(returnType) + " " + returnVar + " = " + i + ";\n";
+   }
+   
+   // private static boolean builtIn(Map<String,String> namingConventions,String returnType){
+//       
+//    }
+   private static String processComplex(Map<String,String> namingConventions,List<Method> methods,Object o,String s,int endIndex)throws Exception{
+      //execute swapping algo and call processPrimitive() OR swapping not possible and execute processComplex()
+      for(int i = methods.size()-1; i >= endIndex; i--){
+         //if get(),0 param,and built in swap
+         if(methods.get(i).getName().substring(0,3).equals("get") && methods.get(i).getParameterTypes().length == 0 && namingConventions.get(methods.get(i).getReturnType().toString()) != null){
+            String returnType = methods.get(i).getReturnType().toString();
+            boolean builtIn = false;
+            if(namingConventions.get(returnType) != null)
+               builtIn = true;
+            else if(returnType.contains(".")){
+               //if comes in class java.lang.String format
+               String type = returnType.substring(returnType.lastIndexOf(".")+1);
+               if(namingConventions.get(type) != null)
+                  builtIn = true;
+            }
+            if(builtIn){
+               swap(methods,endIndex,i);
+               return processPrimitive(namingConventions,methods.get(endIndex).getReturnType().toString(),methods.get(endIndex).getName().substring(3,4).toLowerCase() + methods.get(endIndex).getName().substring(4),1);
+            }
+         }
+      } 
+      Object complexObj = methods.get(endIndex).invoke();
+      List<Method> complexMethods = Arrays.asList(complexObj.getClass().getMethods());
+      for(Method m : complexMethods){
+         if(namingConventions.get(m.getReturnType().toString()) != null)
+            s += processPrimitive(namingConventions,m.getReturnType().toString(),m.getName().substring(3,4).toLowerCase() + m.getName().substring(4),1);
+         else{
+            s += "\nmessage " + (complexObj.getClass() + "").substring(6) + " {\n"; 
+            Object r = m.invoke(complexObj);
+            processComplex(namingConventions,complexMethods,r,s,complexMethods.indexOf(m));
+         }
+      }
+      return s;
+   }
+   
+   private static void swap(List<Method> methods,int i, int j){
+      Method temp = methods.get(i);
+      methods.set(i,methods.get(j));
+      methods.set(j,temp);
    }
 }
