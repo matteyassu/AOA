@@ -91,7 +91,10 @@ public class ProtoConverter{
       //execute swapping algo and call processPrimitive() OR swapping not possible and execute processComplex()
       for(int i = methods.size()-1; i >= endIndex; i--){
          //if get(),0 param,and built in swap
-         if(methods.get(i).getName().substring(0,3).equals("get") && methods.get(i).getParameterTypes().length == 0 && namingConventions.get(methods.get(i).getReturnType().toString()) != null){
+         String name = methods.get(i).getName();
+         if(methods.get(i).getName().substring(0,3).equals("get") && methods.get(i).getParameterTypes().length == 0){
+            if(methods.get(i).getName().equals("getClass"))
+               continue;
             String returnType = methods.get(i).getReturnType().toString();
             boolean builtIn = false;
             if(namingConventions.get(returnType) != null)
@@ -109,10 +112,14 @@ public class ProtoConverter{
          }
       } 
        
-      s += "message " + methods.get(endIndex).getReturnType().toString() + "{ \n";
+      String className = methods.get(endIndex).getReturnType().toString().substring(6); 
+      s += "message " + className + "{ \n";
       List<Method> complexMethods = Arrays.asList(methods.get(endIndex).getReturnType().getMethods());
       for(Method m : complexMethods){
-         if(m.getName().substring(0,3).equals("get") && m.getParameterTypes().length == 0 && namingConventions.get(m.getReturnType().toString()) != null){
+         String name = m.getName();
+         if(m.getName().substring(0,3).equals("get") && m.getParameterTypes().length == 0){
+            if(m.getName().equals("getClass"))
+               continue;
          String returnType = m.getReturnType().toString();
          boolean builtIn = false;
          if(namingConventions.get(returnType) != null)
@@ -124,10 +131,11 @@ public class ProtoConverter{
                builtIn = true;
          }
          if(builtIn){
-            s += processPrimitive(namingConventions,returnType,methods.get(endIndex).getName().substring(3,4).toLowerCase() + methods.get(endIndex).getName().substring(4),1);
+            String returnVar = m.getName();
+            s += processPrimitive(namingConventions,returnType,m.getName().substring(3,4).toLowerCase() + m.getName().substring(4),1);
          }      
          else{
-            Object r = methods.get(endIndex).getReturnType();
+            Object r = complexMethods.get(endIndex).getReturnType();
             s += "\nmessage " + (r.getClass() + "").substring(6) + " {\n"; 
             processComplex(namingConventions,complexMethods,r,s,complexMethods.indexOf(m));
          }
