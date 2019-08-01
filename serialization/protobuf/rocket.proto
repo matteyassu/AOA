@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package NASA;
+
+option java_package = "com.example.proto";
+option java_outer_classname = "ProtoConverter";
+
+message Rocket {
+  optional int32 terminalVelocity = 1;
+  optional string engineType = 2;
+  optional int32 engineVersion = 3;
+  optional int32 mass = 4;
+  message Astronaut {
+    optional string name = 1;
+    optional int32 height = 2;
+    optional int32 weight = 3;
+  }  
+}

@@ -3,15 +3,16 @@
  * 		  Added features:
  * 			required vs optional variables
  * 			repeated variables
- * 			indentation
- * 			
+ *        Use protoc compiler to generate binary
+ * 
+   INFLATION COMMAND(from within directory that .java file is located in) protoc --java_out=C:\Users\meyassu\workspace\Android\AOA\serialization\protobuf rocket.proto
  */
 import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
 public class ProtoConverter {
    
-   public static void main(String [] args){
+   public static void main(String [] args) throws IOException{
       Astronaut a = new Astronaut();
       Rocket r = new Rocket(a,"FalconHeavy",5,10000,3);
       ProtoConverter proto = new ProtoConverter(r);
@@ -36,6 +37,7 @@ public class ProtoConverter {
             i.printStackTrace();
           }
       }
+      proto.compile();
    }
    
    private Map<String,String> typeConventions;
@@ -48,9 +50,9 @@ public class ProtoConverter {
       typeConventions = new HashMap<String,String>();
       typeConventions.put("Integer","int32");
       typeConventions.put("class java.lang.Integer","int32");
-      typeConventions.put("String","String");
-      typeConventions.put("String","String");
-      typeConventions.put("class java.lang.String","String");
+      typeConventions.put("String","string");
+      typeConventions.put("String","string");
+      typeConventions.put("class java.lang.String","string");
       typeConventions.put("boolean","bool");
       typeConventions.put("int","int32");
    	
@@ -101,7 +103,7 @@ public class ProtoConverter {
    }
    public String generateSkeleton(int version,String pkgName,boolean javaPkg,String javaPkgName,boolean outerClass,String outerClassName) {
       String doubleSpace = "\r\n\r\n";
-      String skeleton = "syntax = \"proto" + version + ";" + doubleSpace;
+      String skeleton = "syntax = \"proto" + version + "\";" + doubleSpace;
    	
    	//packages
       if(!javaPkg)
@@ -141,7 +143,7 @@ public class ProtoConverter {
             if(swapped) {
                fieldType = fields[i].getType().toString();
                fieldName = fields[i].getName();
-               attributes += addIndent(numIndent) + typeConventions.get(fieldType) + " " + fieldName + " = " + i + ";\r\n";
+               attributes += addIndent(numIndent) + "optional " + typeConventions.get(fieldType) + " " + fieldName + " = " + (i+1) + ";\r\n";
                continue;
             }
             try {
@@ -156,7 +158,7 @@ public class ProtoConverter {
          }
          //simple object
          else{
-            attributes += addIndent(numIndent) + typeConventions.get(fieldType) + " " + fieldName + " = " + i + ";\r\n";
+            attributes += addIndent(numIndent) + "optional " + typeConventions.get(fieldType) + " " + fieldName + " = " + (i+1) + ";\r\n";
             if(i == fields.length -1)
                attributes += addIndent(--numIndent) + "}";
             } 
@@ -169,8 +171,13 @@ public class ProtoConverter {
          indent += "  ";
       return indent;
    }
-   private boolean txtProto() {
-   	
+   
+   public boolean compile() throws IOException{
+      //run cmd commands using Runtime(interfere/use environment/os applications) and Process(actually executes process)
+      //.exec() returns this Process
+      
+      //insert commands
+      Runtime.getRuntime().exec("cmd /c protoc --java_out=C:\\Users\\meyassu\\workspace\\Android\\AOA\\serialization\\protobuf " + protoFile.getName());
       return true;
    }
 	
