@@ -20,14 +20,21 @@ public class ProtoConverterOOP {
       System.out.println(skeleton + attributes);
       FileWriter writer = proto.getWriter();
       try {
-         writer.write(skeleton);
-         writer.write(attributes);
+         writer.write(skeleton + attributes);
       }
       catch(IOException i) {
          i.printStackTrace();
       }
       catch(Exception e){
          e.printStackTrace();
+      }
+      finally{
+         try{
+            writer.close();
+          }
+          catch(IOException i){
+            i.printStackTrace();
+          }
       }
    }
    
@@ -68,7 +75,7 @@ public class ProtoConverterOOP {
       boolean createFile = false;
    	//multiple chances for filename input
       while(!createFile) {
-         System.out.print("Please enter a filename: ");
+         System.out.print("Please enter a filename (with .txt extenstion): ");
          String filename = scan.next(); 
          try {
             protoFile = new File(filename);
@@ -145,12 +152,12 @@ public class ProtoConverterOOP {
             }
             //complex object
             attributes += addIndent(numIndent) + generateAttributes(p,numIndent) + addIndent(numIndent);
-            attributes += addIndent(--numIndent) + "\n}";
+            attributes += addIndent(--numIndent) + "\r\n}";
          }
          //simple object
          else{
             attributes += addIndent(numIndent) + typeConventions.get(fieldType) + " " + fieldName + " = " + i + ";\r\n";
-            if( i == fields.length -1)
+            if(i == fields.length -1)
                attributes += addIndent(--numIndent) + "}";
             } 
       }
