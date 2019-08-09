@@ -202,6 +202,8 @@ public class PCConnection{
          if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to detach kernel driver", result);
       }
       //send bulk transfer
+      
+      
       System.out.println("Attempting bulk transfer...");
       result = LibUsb.claimInterface(updatedHandle,/*setting.bInterfaceNumber()*/0);
       ByteBuffer buffer = ByteBuffer.allocateDirect(64);

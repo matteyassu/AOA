@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package USBProtocol;
+
+option java_package = "com.idemia.USBProtocol";
+option java_outer_classname = "USBProtocolProtos";
+
+message USBCommand {
+  int32 id = 1;
+  bytes parameters = 2;
+}
+
+message USBResponse {
+  int32 id = 1;
+  int32 status = 2;
+  bytes parameters = 3;
+}
+
+

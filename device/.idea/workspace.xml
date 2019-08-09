@@ -48,15 +48,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ca323b67-c581-4ab3-ad99-cf6638ce803e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/5.1.1/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/gradle_models.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/gradle_models.ser" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AOA.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/ProtoConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../serialization/protobuf/ProtoConverter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../host/PCConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/../host/PCConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/Astronaut.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/Astronaut.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/ProtoConverter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/ProtoConverter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/Rocket.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/Rocket.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/com/example/proto/ProtoConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../serialization/protobuf/com/example/proto/ProtoConverter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/exampleoutput.proto" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/rocket.proto" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/build/classes/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -116,7 +117,6 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
-          <provider editor-type-id="android-designer2" />
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="289">
               <caret line="17" column="10" selection-start-line="17" selection-start-column="10" selection-end-line="17" selection-end-column="10" />
@@ -127,8 +127,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/aoaconnect/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="52" column="42" selection-start-line="52" selection-start-column="42" selection-end-line="52" selection-end-column="42" />
+            <state relative-caret-position="357">
+              <caret line="66" column="41" selection-start-line="66" selection-start-column="41" selection-end-line="66" selection-end-column="41" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -178,7 +178,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="314" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
@@ -190,9 +190,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -327,11 +327,11 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Captures" order="0" sideWeight="0.4225352" side_tool="true" weight="0.17537314" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.5766526" visible="true" weight="0.17537314" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.5766526" visible="true" weight="0.17697228" />
       <window_info id="Structure" order="2" sideWeight="0.501006" side_tool="true" weight="0.33315393" />
       <window_info id="Favorites" order="3" sideWeight="0.501006" side_tool="true" weight="0.33315393" />
       <window_info id="Build Variants" order="4" sideWeight="0.501006" side_tool="true" weight="0.33315393" />
@@ -447,17 +447,17 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
-      <provider editor-type-id="android-designer2" />
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
           <caret line="17" column="10" selection-start-line="17" selection-start-column="10" selection-end-line="17" selection-end-column="10" />
         </state>
       </provider>
+      <provider editor-type-id="android-designer2" />
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/aoaconnect/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="52" column="42" selection-start-line="52" selection-start-column="42" selection-end-line="52" selection-end-column="42" />
+        <state relative-caret-position="357">
+          <caret line="66" column="41" selection-start-line="66" selection-start-column="41" selection-end-line="66" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
