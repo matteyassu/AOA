@@ -3,7 +3,7 @@ package com.example.aoaconnect;
 import org.usb4java.*;
 import java.nio.*;
 
-public class UsbHost {
+public class UsbHost extends Thread{
    public static void main(String[] args) {
       UsbHost host = new UsbHost();
       try {
@@ -18,6 +18,7 @@ public class UsbHost {
       */
          host.findEndpoints();
          host.bulkTransfer();
+         receiveData.start();
          host.mopUp();
       } catch (Exception e) {
          e.printStackTrace();
@@ -31,6 +32,8 @@ public class UsbHost {
    private DeviceList list;
    private EndpointDescriptor epOut;
    private EndpointDescriptor epIn;
+   
+   private static Thread receiveData;
 
    private final int IDVENDOR = 0X18D1;
    private final int IDPRODUCT = 0X2D00;
@@ -47,6 +50,8 @@ public class UsbHost {
       descriptor = new DeviceDescriptor();
       handle = new DeviceHandle();
       list = new DeviceList();
+      
+      receiveData = new Thread();
    }
 
    public void init() throws LibUsbException {
@@ -251,6 +256,12 @@ public class UsbHost {
          result = LibUsb.attachKernelDriver(handle, /*setting.bInterfaceNumber()*/0);
          if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to re-attach kernel driver", result);
       }
+   }
+   
+   public void run(){
+      //doodle while waiting for response
+      for(int i = 0; i < 10;i++)
+         System.out.println("*");
    }
    
    public void mopUp(){

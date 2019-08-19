@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity{
         catch (IOException e) {
             e.printStackTrace();
         }
-        //write
+        //echo
         //byte[] out = new byte[8];
         //for (int i = 0; i < in.length; i++) {
             //Log.d(TAG, "Data: " + in[i]);
