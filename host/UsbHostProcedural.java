@@ -1,15 +1,8 @@
-//PC-SIDE VERSION
-//Next Dev: Multithreading
-//Problems: 
-//changes: altsetting.bInterfaceNumber = 0
+//procedural style
 import org.usb4java.*;
 import java.nio.*;
-//import android.hardware.usb.manager;
-/*
-TODO: automate device-side libusb-based driver runtime installation with Zadig libwdi library (will unnecessarily slow execution)
-Redownload libusbK driver after board enters AOA mode
-*/
-public class PCConnection{
+
+public class UsbHostProcedural{
    /*
    Messages:
    libusb initialized

@@ -48,16 +48,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ca323b67-c581-4ab3-ad99-cf6638ce803e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../host/PCConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/../host/PCConnection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/Astronaut.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/Astronaut.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/ProtoConverter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/ProtoConverter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/Rocket.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/Rocket.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/com/example/proto/ProtoConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../serialization/protobuf/com/example/proto/ProtoConverter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/exampleoutput.proto" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../serialization/protobuf/rocket.proto" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../host/PCConnection.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../host/PCConnectionOOP.java" beforeDir="false" afterPath="$PROJECT_DIR$/../host/PCConnectionOOP.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/build/classes/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -127,8 +120,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/aoaconnect/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="66" column="41" selection-start-line="66" selection-start-column="41" selection-end-line="66" selection-end-column="41" />
+            <state relative-caret-position="935">
+              <caret line="55" column="32" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -178,7 +171,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="314" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
@@ -202,6 +195,7 @@
     <property name="project.structure.last.edited" value="Dependencies" />
     <property name="project.structure.proportion" value="0.17" />
     <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="settings.github" />
   </component>
   <component name="PsdUISettings">
     <option name="LAST_EDITED_BUILD_TYPE" value="release" />
@@ -327,11 +321,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
       <window_info id="Captures" order="0" sideWeight="0.4225352" side_tool="true" weight="0.17537314" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.5766526" visible="true" weight="0.17697228" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.5766526" visible="true" weight="0.17857143" />
       <window_info id="Structure" order="2" sideWeight="0.501006" side_tool="true" weight="0.33315393" />
       <window_info id="Favorites" order="3" sideWeight="0.501006" side_tool="true" weight="0.33315393" />
       <window_info id="Build Variants" order="4" sideWeight="0.501006" side_tool="true" weight="0.33315393" />
@@ -344,7 +337,7 @@
       <window_info anchor="bottom" id="TODO" order="2" sideWeight="0.49413645" weight="0.32827735" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.32936078" />
       <window_info anchor="bottom" id="Terminal" order="4" sideWeight="0.49307036" weight="0.14409535" />
-      <window_info anchor="bottom" id="Event Log" order="5" sideWeight="0.4339019" side_tool="true" visible="true" weight="0.23076923" />
+      <window_info active="true" anchor="bottom" id="Event Log" order="5" sideWeight="0.4339019" side_tool="true" visible="true" weight="0.28710726" />
       <window_info anchor="bottom" id="Version Control" order="6" sideWeight="0.49626866" weight="0.32827735" />
       <window_info anchor="bottom" id="Build" order="7" sideWeight="0.5660981" visible="true" weight="0.23076923" />
       <window_info anchor="bottom" id="Android Profiler" order="8" show_stripe_button="false" weight="0.32936078" />
@@ -432,12 +425,12 @@
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/aoaconnect/UsbReceiver.java" />
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/aoaconnect/USBHost.java" />
     <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
+      <provider editor-type-id="android-manifest" />
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="18" column="22" selection-start-line="18" selection-start-column="22" selection-end-line="18" selection-end-column="22" />
         </state>
       </provider>
-      <provider editor-type-id="android-manifest" />
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/xml/accessory_filter.xml">
       <provider selected="true" editor-type-id="text-editor">
@@ -456,8 +449,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/aoaconnect/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="66" column="41" selection-start-line="66" selection-start-column="41" selection-end-line="66" selection-end-column="41" />
+        <state relative-caret-position="935">
+          <caret line="55" column="32" selection-start-line="55" selection-start-column="32" selection-end-line="55" selection-end-column="32" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
