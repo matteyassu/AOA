@@ -93,17 +93,17 @@ public class MainActivity extends AppCompatActivity{
             e.printStackTrace();
         }
         //write
-        //byte[] out = new byte[8];
-        //for (int i = 0; i < in.length; i++) {
-            //Log.d(TAG, "Data: " + in[i]);
-            //out[i] = (byte) (in[i] + 1);
-        //}
-       // try {
-            //outputStream.write(out);
-       // }
-        //catch (IOException e) {
-            //e.printStackTrace();
-        //}
+        byte[] out = new byte[8];
+        for (int i = 0; i < in.length; i++) {
+            Log.d(TAG, "Data: " + in[i]);
+            out[i] = (byte) (in[i] + 1);
+        }
+       try {
+            outputStream.write(out);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     public void displayData(TextView t, byte[] in){
         String s = "";
@@ -112,4 +112,3 @@ public class MainActivity extends AppCompatActivity{
         t.setText(s);
     }
 }//end MainActivity
-
