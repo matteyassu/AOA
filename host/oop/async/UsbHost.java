@@ -14,7 +14,7 @@ public class UsbHost{
       }    
       
       @Override
-      public void run(){
+      public synchronized void run(){
          host = new UsbHost();
          while(!this.abort){
             int result = LibUsb.handleEventsTimeout(null,250000);
