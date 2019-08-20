@@ -3,7 +3,41 @@ package com.example.aoaconnect;
 import org.usb4java.*;
 import java.nio.*;
 
-public class UsbHost extends Thread{
+public class UsbHost{
+   class DataThread extends Thread{
+      //volatile data type renders application thread-safe; in multithreading, multiple threads modify copies of same variables such that other threads may be unaware of such changes leading to data 
+      //inconsistency but if data is volatile it automatically reflects changes made in other threads
+      private volatile boolean abort;
+      private UsbHost host;
+      public void abort(){
+         this.abort = true;
+      }    
+      
+      @Override
+      public void run(){
+         host = new UsbHost();
+         while(!this.abort){
+            int result = LibUsb.handleEventsTimeout(null,250000);
+            if(result < 0)
+               throw new LibUsbException("Unable to handle events",result);
+            ByteBuffer buffer = BufferUtils.allocateByteBuffer(8);
+            buffer.put(new byte[] {1,2,3,4,5,6,7,8});
+            Transfer transfer = LibUsb.allocTransfer();
+            TransferCallback callback = new TransferCallback(){
+               @Override
+               public void processTransfer(Transfer transfer){
+                  System.out.println(transfer.actualLength() + " bytes sent");
+                  LibUsb.freeTransfer(transfer);
+               }
+            };
+            LibUsb.fillBulkTransfer(transfer,host.getHandle(),host.getEpOut().bEndpointAddress(),buffer,callback,null,5000);
+            result = LibUsb.submitTransfer(transfer);
+            if(result < 0)
+               throw new LibUsbException("Unable to submit transfer",result);
+         }
+      } 
+   }
+   
    public static void main(String[] args) {
       UsbHost host = new UsbHost();
       try {
@@ -17,8 +51,8 @@ public class UsbHost extends Thread{
       Device consantly tries to read in data and display (and write back)
       */
          host.findEndpoints();
-         host.bulkTransfer();
-         receiveData.start();
+         //host.bulkTransfer();
+         dt.start();
          host.mopUp();
       } catch (Exception e) {
          e.printStackTrace();
@@ -33,7 +67,7 @@ public class UsbHost extends Thread{
    private EndpointDescriptor epOut;
    private EndpointDescriptor epIn;
    
-   private static Thread receiveData;
+   private static DataThread dt;
 
    private final int IDVENDOR = 0X18D1;
    private final int IDPRODUCT = 0X2D00;
@@ -51,9 +85,15 @@ public class UsbHost extends Thread{
       handle = new DeviceHandle();
       list = new DeviceList();
       
-      receiveData = new Thread();
+      dt = new DataThread();
    }
-
+   public DeviceHandle getHandle(){
+      return this.handle;
+   }
+   
+   public EndpointDescriptor getEpOut(){
+      return this.epOut;
+   }
    public void init() throws LibUsbException {
       int result = LibUsb.init(null);
       if (result != LibUsb.SUCCESS)
@@ -237,38 +277,34 @@ public class UsbHost extends Thread{
       }
    }
    
-   public void bulkTransfer(){
-      System.out.println("Attempting bulk transfer...");
-      int result = LibUsb.claimInterface(handle,/*setting.bInterfaceNumber()*/0);
-      ByteBuffer buffer = ByteBuffer.allocateDirect(64);
-      buffer.put(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
-      IntBuffer transferred = IntBuffer.allocate(1);
-      result = LibUsb.bulkTransfer(handle,epOut.bEndpointAddress(),buffer,transferred, 15000);
-      if (result != LibUsb.SUCCESS)
-         throw new LibUsbException("Bulk transfer failed: ", result);
-      else
-         System.out.println("Bulk transfer successful! -> " + buffer.capacity() + " bytes sent");   
-     
-     //reattach kernel driver if necessary
-      boolean detach = (LibUsb.hasCapability(LibUsb.CAP_SUPPORTS_DETACH_KERNEL_DRIVER)) && (LibUsb.kernelDriverActive(handle,/*setting.bInterfaceNumber()*/0) == 1);
-      if (detach)
-      {
-         result = LibUsb.attachKernelDriver(handle, /*setting.bInterfaceNumber()*/0);
-         if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to re-attach kernel driver", result);
-      }
-   }
-   
-   public void run(){
-      //doodle while waiting for response
-      for(int i = 0; i < 10;i++)
-         System.out.println("*");
-   }
-   
-   public void mopUp(){
+   //synchronous
+   // public void bulkTransfer(){
+//       System.out.println("Attempting bulk transfer...");
+//       int result = LibUsb.claimInterface(handle,/*setting.bInterfaceNumber()*/0);
+//       ByteBuffer buffer = ByteBuffer.allocateDirect(64);
+//       buffer.put(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+//       IntBuffer transferred = IntBuffer.allocate(1);
+//       result = LibUsb.bulkTransfer(handle,epOut.bEndpointAddress(),buffer,transferred, 15000);
+//       if (result != LibUsb.SUCCESS)
+//          throw new LibUsbException("Bulk transfer failed: ", result);
+//       else
+//          System.out.println("Bulk transfer successful! -> " + buffer.capacity() + " bytes sent");   
+//      
+//      //reattach kernel driver if necessary
+//       boolean detach = (LibUsb.hasCapability(LibUsb.CAP_SUPPORTS_DETACH_KERNEL_DRIVER)) && (LibUsb.kernelDriverActive(handle,/*setting.bInterfaceNumber()*/0) == 1);
+//       if (detach)
+//       {
+//          result = LibUsb.attachKernelDriver(handle, /*setting.bInterfaceNumber()*/0);
+//          if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to re-attach kernel driver", result);
+//       }
+//    }   
+   public void mopUp() throws Exception{
       System.out.println("Mop up");
       int result = LibUsb.releaseInterface(handle,/*setting.bInterfaceNumber()*/0);
       if(result < 0)
          throw new LibUsbException("Interface release failed",result);
+      dt.abort();
+      dt.join();
       LibUsb.freeDeviceList(list,true);
       LibUsb.close(handle);
       LibUsb.unrefDevice(device);
