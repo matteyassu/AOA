@@ -18,7 +18,6 @@ public class UsbHost extends Thread{
       */
          host.findEndpoints();
          host.bulkTransfer();
-         receiveData.start();
          host.mopUp();
       } catch (Exception e) {
          e.printStackTrace();
@@ -50,8 +49,6 @@ public class UsbHost extends Thread{
       descriptor = new DeviceDescriptor();
       handle = new DeviceHandle();
       list = new DeviceList();
-      
-      receiveData = new Thread();
    }
 
    public void init() throws LibUsbException {
@@ -256,14 +253,7 @@ public class UsbHost extends Thread{
          result = LibUsb.attachKernelDriver(handle, /*setting.bInterfaceNumber()*/0);
          if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to re-attach kernel driver", result);
       }
-   }
-   
-   public void run(){
-      //doodle while waiting for response
-      for(int i = 0; i < 10;i++)
-         System.out.println("*");
-   }
-   
+   }   
    public void mopUp(){
       System.out.println("Mop up");
       int result = LibUsb.releaseInterface(handle,/*setting.bInterfaceNumber()*/0);
