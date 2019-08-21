@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity{
         catch (IOException e) {
             e.printStackTrace();
         }
+<<<<<<< HEAD:device/app/src/main/java/com/example/aoaconnect/MainActivity.java
         //write
         byte[] out = new byte[8];
         for (int i = 0; i < in.length; i++) {
@@ -104,6 +105,20 @@ public class MainActivity extends AppCompatActivity{
         catch (IOException e) {
             e.printStackTrace();
         }
+=======
+        //echo
+        //byte[] out = new byte[8];
+        //for (int i = 0; i < in.length; i++) {
+            //Log.d(TAG, "Data: " + in[i]);
+            //out[i] = (byte) (in[i] + 1);
+        //}
+       // try {
+            //outputStream.write(out);
+       // }
+        //catch (IOException e) {
+            //e.printStackTrace();
+        //}
+>>>>>>> serialization:host/app/src/main/java/com/example/aoaconnect/MainActivity.java
     }
     public void displayData(TextView t, byte[] in){
         String s = "";
