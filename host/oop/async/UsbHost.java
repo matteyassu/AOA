@@ -31,12 +31,13 @@ public class UsbHost{
    }
    
    /*
-   Comm:
+   algo:
    find device
    force device into accessory mode/re-search/update variables(device,descriptor,handle)
    Device-side: auto launch and constantly try to read in/display
    bulk transfer ->
-   clean up
+   read
+   mop up
    */
    
    public static void main(String[] args) {
@@ -72,7 +73,7 @@ public class UsbHost{
                      if(result == LibUsb.TRANSFER_COMPLETED)
                         System.out.println("Resubmission successful!");
                   } 
-                 
+                  LibUsb.freeTransfer(transfer);
                }
             };
             
@@ -80,7 +81,8 @@ public class UsbHost{
             new TransferCallback(){
                @Override
                public void processTransfer(Transfer transfer){
-                  int result = transfer.status();
+                  System.out.println(transfer.actualLength() + " bytes received");
+                  LibUsb.freeTransfer(transfer);
                }
             };
          //write protobuf objects
@@ -96,7 +98,7 @@ public class UsbHost{
          
          //build comm
          USBCommand comm = preComm.build();
-         //convert comm to byteArray (vaporize)
+         //convert comm to byteArray (vaporize) and send
          byte[] writeData = comm.toByteArray();
          host.write(writeData,writeCallback);
          
