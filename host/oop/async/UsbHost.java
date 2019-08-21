@@ -1,60 +1,114 @@
 package com.example.aoaconnect;
 
 import org.usb4java.*;
+
+import com.google.protobuf.*;
+import com.idemia.USBProtocol.USBProtocolProtos.USBCommand;
+import com.idemia.USBProtocol.USBProtocolProtos.USBResponse;
+
 import java.nio.*;
 
 public class UsbHost{
-   class DataThread extends Thread{
-      //volatile data type renders application thread-safe; in multithreading, multiple threads modify copies of same variables such that other threads may be unaware of such changes leading to data 
-      //inconsistency but if data is volatile it automatically reflects changes made in other threads
+   /*
+   thread to handle pending events
+   */
+   
+   static class EventHandlingThread extends Thread{
+      //volatile, automatically reflects changes made from other threads
       private volatile boolean abort;
-      private UsbHost host;
       public void abort(){
          this.abort = true;
       }    
       
       @Override
       public synchronized void run(){
-         host = new UsbHost();
          while(!this.abort){
             int result = LibUsb.handleEventsTimeout(null,250000);
             if(result < 0)
                throw new LibUsbException("Unable to handle events",result);
-            ByteBuffer buffer = BufferUtils.allocateByteBuffer(8);
-            buffer.put(new byte[] {1,2,3,4,5,6,7,8});
-            Transfer transfer = LibUsb.allocTransfer();
-            TransferCallback callback = new TransferCallback(){
-               @Override
-               public void processTransfer(Transfer transfer){
-                  System.out.println(transfer.actualLength() + " bytes sent");
-                  LibUsb.freeTransfer(transfer);
-               }
-            };
-            LibUsb.fillBulkTransfer(transfer,host.getHandle(),host.getEpOut().bEndpointAddress(),buffer,callback,null,5000);
-            result = LibUsb.submitTransfer(transfer);
-            if(result < 0)
-               throw new LibUsbException("Unable to submit transfer",result);
-         }
-      } 
+         } 
+      }
    }
+   
+   /*
+   Comm:
+   find device
+   force device into accessory mode/re-search/update variables(device,descriptor,handle)
+   Device-side: auto launch and constantly try to read in/display
+   bulk transfer ->
+   clean up
+   */
    
    public static void main(String[] args) {
       UsbHost host = new UsbHost();
       try {
-         //find device,force device into accessory mode,find device in accessory mode,update variables(device,descriptor,handle) to relate to accessory device
          host.init();
          host.findDevice();
+         EventHandlingThread et = new EventHandlingThread();
+         et.start();
          host.accessoryMode();
-         /*
-      Device-side Operation -- automatic launch since device shows up as an accessory:
-      user prompted for permission automatically
-      Device consantly tries to read in data and display (and write back)
-      */
          host.findEndpoints();
-         //host.bulkTransfer();
-         dt.start();
+         
+         //transfer callback vars
+         final TransferCallback writeCallback = 
+            new TransferCallback(){
+            //once transfer sent one of four things happens:transfer completes successfully,transfer times out before all data is sent,transfer fails due to error,transfer is cancelled
+               @Override
+               public void processTransfer(Transfer transfer){
+                  int result = transfer.status();
+                  if(result == LibUsb.TRANSFER_COMPLETED)
+                     System.out.println("Transfer complete!");
+                  else if(result == LibUsb.ERROR_TIMEOUT){
+                    //increase bits/sec for COM port and resubmit
+                     System.out.print("Increasing bits/sec for COM port...");
+                    
+                     result = LibUsb.submitTransfer(transfer);
+                     if(result == LibUsb.TRANSFER_COMPLETED)
+                        System.out.println("Resubmission successful!");
+                  }
+                  else if(result == LibUsb.TRANSFER_CANCELLED || result == LibUsb.TRANSFER_ERROR){
+                     //resubmit
+                     LibUsb.submitTransfer(transfer);
+                     if(result == LibUsb.TRANSFER_COMPLETED)
+                        System.out.println("Resubmission successful!");
+                  } 
+                 
+               }
+            };
+            
+         final TransferCallback readCallback = 
+            new TransferCallback(){
+               @Override
+               public void processTransfer(Transfer transfer){
+                  int result = transfer.status();
+               }
+            };
+         //write protobuf objects
+         
+         //progenitor to built USBCommand message
+         USBCommand.Builder preComm = USBCommand.newBuilder();
+         //set Id
+         preComm.setId(0);
+         //set paramaters(payload?)
+         byte[] binOutput = {0,1,0,0,0,0,1,1,1,0,1,0,1,1};
+         ByteString params = ByteString.copyFrom(binOutput);
+         preComm.setParameters(params);
+         
+         //build comm
+         USBCommand comm = preComm.build();
+         //convert comm to byteArray (vaporize)
+         byte[] writeData = comm.toByteArray();
+         host.write(writeData,writeCallback);
+         
+         
+         //read input cbor
+         host.read(64,readCallback);
+          
+         et.abort();
+         et.join();
          host.mopUp();
-      } catch (Exception e) {
+      } 
+      catch (Exception e) {
          e.printStackTrace();
       }
       
@@ -67,8 +121,6 @@ public class UsbHost{
    private EndpointDescriptor epOut;
    private EndpointDescriptor epIn;
    
-   private static DataThread dt;
-
    private final int IDVENDOR = 0X18D1;
    private final int IDPRODUCT = 0X2D00;
    private final int ALTIDPRODUCT = 0X2D01;
@@ -84,16 +136,8 @@ public class UsbHost{
       descriptor = new DeviceDescriptor();
       handle = new DeviceHandle();
       list = new DeviceList();
-      
-      dt = new DataThread();
-   }
-   public DeviceHandle getHandle(){
-      return this.handle;
    }
    
-   public EndpointDescriptor getEpOut(){
-      return this.epOut;
-   }
    public void init() throws LibUsbException {
       int result = LibUsb.init(null);
       if (result != LibUsb.SUCCESS)
@@ -152,8 +196,7 @@ public class UsbHost{
                hostMetadata.put(MANUFACTURER.getBytes());
                result = LibUsb.controlTransfer(handle, (byte) 64, (byte) 52, (short) 0, (short) 0, hostMetadata, (long) 5000);
                if (result < 0)
-                  throw new LibUsbException("Manufacturer metadata control transfer failed", result);
-            
+                  throw new LibUsbException("Manufacturer metadata control transfer failed", result);            
                //model
                hostMetadata.clear();
                hostMetadata.put(MODEL.getBytes());
@@ -277,37 +320,42 @@ public class UsbHost{
       }
    }
    
-   //synchronous
-   // public void bulkTransfer(){
-//       System.out.println("Attempting bulk transfer...");
-//       int result = LibUsb.claimInterface(handle,/*setting.bInterfaceNumber()*/0);
-//       ByteBuffer buffer = ByteBuffer.allocateDirect(64);
-//       buffer.put(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
-//       IntBuffer transferred = IntBuffer.allocate(1);
-//       result = LibUsb.bulkTransfer(handle,epOut.bEndpointAddress(),buffer,transferred, 15000);
-//       if (result != LibUsb.SUCCESS)
-//          throw new LibUsbException("Bulk transfer failed: ", result);
-//       else
-//          System.out.println("Bulk transfer successful! -> " + buffer.capacity() + " bytes sent");   
-//      
-//      //reattach kernel driver if necessary
-//       boolean detach = (LibUsb.hasCapability(LibUsb.CAP_SUPPORTS_DETACH_KERNEL_DRIVER)) && (LibUsb.kernelDriverActive(handle,/*setting.bInterfaceNumber()*/0) == 1);
-//       if (detach)
-//       {
-//          result = LibUsb.attachKernelDriver(handle, /*setting.bInterfaceNumber()*/0);
-//          if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to re-attach kernel driver", result);
-//       }
-//    }   
+   public void write(byte[]data,TransferCallback callback){
+      ByteBuffer buffer = BufferUtils.allocateByteBuffer(data.length);
+      buffer.put(data);
+      Transfer transfer = LibUsb.allocTransfer();
+      LibUsb.fillBulkTransfer(transfer, handle, epOut.bEndpointAddress(), buffer,callback, null, 5000);
+      System.out.println("sending " + data.length + " bytes to device");
+      int result = LibUsb.submitTransfer(transfer);
+      if(result < 0)
+         throw new LibUsbException("Unable to submit transfer", result);
+   }
+   
+   public void read(int payloadSize,TransferCallback callback){
+      ByteBuffer buffer = BufferUtils.allocateByteBuffer(payloadSize).order(ByteOrder.LITTLE_ENDIAN); //little endian: binary places ordered l->r,least to greatest
+      Transfer transfer = LibUsb.allocTransfer();
+      LibUsb.fillBulkTransfer(transfer, handle, epIn.bEndpointAddress(), buffer,callback, null, 5000);
+      System.out.println("Reading " + payloadSize + " bytes from device");
+      int result = LibUsb.submitTransfer(transfer);
+      if(result < 0)
+         throw new LibUsbException("Unable to submit transfer", result);
+   }   
    public void mopUp() throws Exception{
       System.out.println("Mop up");
       int result = LibUsb.releaseInterface(handle,/*setting.bInterfaceNumber()*/0);
       if(result < 0)
          throw new LibUsbException("Interface release failed",result);
-      dt.abort();
-      dt.join();
       LibUsb.freeDeviceList(list,true);
       LibUsb.close(handle);
+      //reattach kernel driver if necessary
+      boolean detach = (LibUsb.hasCapability(LibUsb.CAP_SUPPORTS_DETACH_KERNEL_DRIVER)) && (LibUsb.kernelDriverActive(handle,/*setting.bInterfaceNumber()*/0) == 1);
+      if (detach)
+      {
+         result = LibUsb.attachKernelDriver(handle, /*setting.bInterfaceNumber()*/0);
+         if (result != LibUsb.SUCCESS) throw new LibUsbException("Unable to re-attach kernel driver", result);
+      }
       LibUsb.unrefDevice(device);
       LibUsb.exit(null); 
    }
+
 }

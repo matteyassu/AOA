@@ -1,5 +1,3 @@
-import com.example.tutorial.AddressBookProtos.AddressBook;
-import com.example.tutorial.AddressBookProtos.Person;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,7 +6,10 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
+
 import com.google.protobuf.*;
+import com.example.tutorial.AddressBookProtos.AddressBook;
+import com.example.tutorial.AddressBookProtos.Person;
 
 public class AddPerson{
    //construct a Person using Person.Builder and builder.build() with user input
