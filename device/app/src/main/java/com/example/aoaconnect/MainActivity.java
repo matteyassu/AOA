@@ -20,6 +20,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import org.usb4java.*;
 
+import com.google.protobuf.*;
+
+
 public class MainActivity extends AppCompatActivity{
     public final String TAG = "Device-side: ";
     public UsbManager manager;
@@ -55,9 +58,15 @@ public class MainActivity extends AppCompatActivity{
         filter = new IntentFilter(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
         registerReceiver(usbReceiver,filter);
 
-        while(true) {
-            if (openAccessory()) {
-                rw();
+        //keep trying to read until successful; once read() succeeds, write() a USBResponse back
+        boolean accessoryOpened = openAccessory();
+        if(accessoryOpened){
+            while(true){
+                boolean readSuccessful = read();
+                if(readSuccessful) {
+                    write();
+                    break;
+                }
             }
         }
     }
@@ -75,50 +84,42 @@ public class MainActivity extends AppCompatActivity{
             return false;
         return true;
     }
-    public void rw() {
-        //read
-        byte[] in = new byte[8];
+    public void write(){
+        USBResponse.Builder preRes = USBResponse.newBuilder();
+        preRes.setId(0);
+        preRes.setStatus(0);
+        //payload?
+        byte[] binOutput = {0,1,0,0,0,0,1,1,1,0,1,0,1,1};
+        ByteString params = ByteString.copyFrom(binOutput);
+        preRes.setParameters(params);
+
+        UsbResponse res = preRes.build();
+        byte writeData = res.toByteArray();
+        try{
+            outputStream.write(writeData)
+        }
+        catch(IOException i){
+            i.printStackTrace();
+        }
+    }
+    public boolean read() {
+        byte[] in = new byte[64];
         try {
             int read = inputStream.read(in);
             if (read > 0) {
                 Log.d(TAG, "Read successful");
                 TextView t = findViewById(R.id.data);
                 displayData(t,in);
+                return true;
             }
             else {
                 Log.d(TAG, "Stream dry");
+                return false;
             }
           }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IOException i) {
+            i.printStackTrace();
         }
-<<<<<<< HEAD:device/app/src/main/java/com/example/aoaconnect/MainActivity.java
-        //write
-        byte[] out = new byte[8];
-        for (int i = 0; i < in.length; i++) {
-            Log.d(TAG, "Data: " + in[i]);
-            out[i] = (byte) (in[i] + 1);
-        }
-       try {
-            outputStream.write(out);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-=======
-        //echo
-        //byte[] out = new byte[8];
-        //for (int i = 0; i < in.length; i++) {
-            //Log.d(TAG, "Data: " + in[i]);
-            //out[i] = (byte) (in[i] + 1);
-        //}
-       // try {
-            //outputStream.write(out);
-       // }
-        //catch (IOException e) {
-            //e.printStackTrace();
-        //}
->>>>>>> serialization:host/app/src/main/java/com/example/aoaconnect/MainActivity.java
     }
     public void displayData(TextView t, byte[] in){
         String s = "";
