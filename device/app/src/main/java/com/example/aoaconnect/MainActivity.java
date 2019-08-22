@@ -58,15 +58,13 @@ public class MainActivity extends AppCompatActivity{
         filter = new IntentFilter(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
         registerReceiver(usbReceiver,filter);
 
-        //keep trying to read until successful; once read() succeeds, write() a USBResponse back
+        //keep trying to read until successful; once read() succeeds, write() a USBResponse back. Then start over and check for new packets of incoming data
         boolean accessoryOpened = openAccessory();
         if(accessoryOpened){
             while(true){
                 boolean readSuccessful = read();
-                if(readSuccessful) {
+                if(readSuccessful)
                     write();
-                    break;
-                }
             }
         }
     }
